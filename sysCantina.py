@@ -25,10 +25,9 @@ class App(customtkinter.CTk):
         self.geometry(f"{1100}x{580}")
 
         # configure grid layout (4x4)
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_columnconfigure((2, 3), weight=0)
-        self.grid_rowconfigure((0, 1, 2), weight=1)
-
+        self.grid_columnconfigure((1, 2, 3), weight=1)
+        self.grid_rowconfigure((0), weight=1)
+       
         # create sidebar frame with widgets
         self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
@@ -41,62 +40,56 @@ class App(customtkinter.CTk):
         self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
         self.appearance_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Cambiar Tema:", anchor="w")
         self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
-        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["Light", "Dark", "System"],
+        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["Dark", "Light", "System"],
                                                                        command=self.change_appearance_mode_event)
         self.appearance_mode_optionemenu.grid(row=6, column=0, padx=20, pady=(10, 10))
         self.scaling_label = customtkinter.CTkLabel(self.sidebar_frame, text="Tamaño de UI:", anchor="w")
         self.scaling_label.grid(row=7, column=0, padx=20, pady=(10, 0))
-        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["80%", "90%", "100%", "110%", "120%"],
+        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["100%", "110%", "120%"],
                                                                command=self.change_scaling_event)
         self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
 
-        # create main treeview for database visualization
+        # create main treeview for database Ventas visualization
         self.treeview = tk.ttk.Treeview(self, columns=("Nro_Venta", "Descripcion_Producto", "Cantidad", "Precio_Total", "Transferencia", "Fecha_y_hora"), show="headings", selectmode="browse")
-        self.treeview.heading("Nro_Venta", text="Nro de venta")
+        self.treeview.heading("Nro_Venta", text="ID de venta")
         self.treeview.heading("Descripcion_Producto", text="Descripcion de producto")
         self.treeview.heading("Cantidad", text="Cantidad")
         self.treeview.heading("Precio_Total", text="Precio total")
         self.treeview.heading("Transferencia", text="Transferencia")
         self.treeview.heading("Fecha_y_hora", text="Fecha y hora")
-        self.treeview.grid(row=0, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
+        self.treeview.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
 
         # Set the width of each column
-        self.treeview.column("Nro_Venta", width=50)
-        self.treeview.column("Descripcion_Producto", width=130)
-        self.treeview.column("Cantidad", width=40)
-        self.treeview.column("Precio_Total", width=60)
-        self.treeview.column("Transferencia", width=70)
-        self.treeview.column("Fecha_y_hora", width=65)
+        self.treeview.column("Nro_Venta", width=60)
+        self.treeview.column("Descripcion_Producto", width=140)
+        self.treeview.column("Cantidad", width=50)
+        self.treeview.column("Precio_Total", width=70)
+        self.treeview.column("Transferencia", width=80)
+        self.treeview.column("Fecha_y_hora", width=75)
 
         # populate the treeview with data from the database
         self.load_data_from_database()
 
         # Create input fields (Entry widgets) for each column in the table
         self.input_description = customtkinter.CTkEntry(self, placeholder_text="Descripcion de producto")
-        self.input_description.grid(row=1, column=1, padx=(20, 0), pady=(0, 20), sticky="nsew")
+        self.input_description.grid(row=1, column=1, padx=(20, 0), pady=(10, 20), sticky="nsew")
 
         self.input_quantity = customtkinter.CTkEntry(self, placeholder_text="Cantidad")
-        self.input_quantity.grid(row=1, column=2, padx=(0, 0), pady=(0, 20), sticky="nsew")
+        self.input_quantity.grid(row=1, column=2, padx=(0, 0), pady=(10, 20), sticky="nsew")
 
-        self.input_total_price = customtkinter.CTkEntry(self, placeholder_text="Precio total")
-        self.input_total_price.grid(row=1, column=3, padx=(0, 20), pady=(0, 20), sticky="nsew")
-
-
+        # Create checkbox for "transferencia validation"
+        self.checkbox_1 = customtkinter.CTkCheckBox(self, text="Transferencia")
+        self.checkbox_1.grid(row=1, column=3, pady=(10, 0), padx=(10), sticky="n")
 
         # Create "Submit" button
-        self.submit_button = customtkinter.CTkButton(master=self, text="Submit", command=self.submit_data)
+        self.submit_button = customtkinter.CTkButton(master=self, text="Cargar", command=self.submit_data)
         self.submit_button.grid(row=2, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="nsew")
 
     def submit_data(self):
         # Get the input data from the Entry widgets
         description = self.input_description.get()
         quantity = self.input_quantity.get()
-        total_price = self.input_total_price.get()
-
-        # Validate the data (you can add your own validation logic here)
-        if not description or not quantity or not total_price:
-            tkinter.messagebox.showwarning("Warning", "Please fill in all fields.")
-            return
+        transferencia = "Sí" if self.checkbox_1.get() else "No" 
 
         # set default values
         self.appearance_mode_optionemenu.set("Dark")
@@ -125,12 +118,13 @@ class App(customtkinter.CTk):
         # Get the input data from the Entry widgets
         description = self.input_description.get()
         quantity = self.input_quantity.get()
-        total_price = self.input_total_price.get()
+        transferencia = self.checkbox_1.get()
+        unique_id = generate_unique_id()
 
     # Validate the data (you can add your own validation logic here)
-        if not description or not quantity or not total_price:
-            tkinter.messagebox.showwarning("Warning", "Please fill in all fields.")
-            return
+        # if not description or not quantity or not transferencia:
+        #     tkinter.messagebox.showwarning("Warning", "Please fill in all fields.")
+        #     return
         
          # Connect to the database
         conn = sqlite3.connect(self.db_name)
@@ -138,8 +132,8 @@ class App(customtkinter.CTk):
 
         try:
             # Insert the data into the "Ventas" table
-            cursor.execute("INSERT INTO Ventas (Descripcion_Producto, Cantidad, Precio_Total) VALUES (?, ?, ?)",
-                       (description, quantity, total_price))
+            cursor.execute("INSERT INTO Ventas (Nro_Venta, Descripcion_Producto, Cantidad, Transferencia) VALUES (?, ?, ?, ?)",
+                       (unique_id, description, quantity, transferencia))
 
             # Commit the transaction
             conn.commit()
@@ -150,7 +144,7 @@ class App(customtkinter.CTk):
             # Clear the input fields after successfully inserting the data
             self.input_description.delete(0, "end")
             self.input_quantity.delete(0, "end")
-            self.input_total_price.delete(0, "end")
+            self.checkbox_1(False)
 
             tkinter.messagebox.showinfo("Success", "Datos ingresados correctamente.")
 
