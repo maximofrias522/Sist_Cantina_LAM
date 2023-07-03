@@ -128,9 +128,9 @@ class App(customtkinter.CTk):
 
     def submit_data(self):
         # Get the input data from the Entry widgets
-        description = self.input_description.get()
-        quantity = self.input_quantity.get()
-        transferencia = "Sí" if self.checkbox_1.get(1) else "No" 
+        # description = self.input_description.get()
+        # quantity = self.input_quantity.get()
+        # transferencia = "Sí" if self.checkbox_1.get(1) else "No" 
 
         # set default values
         self.appearance_mode_optionemenu.set("Dark")
@@ -154,6 +154,11 @@ class App(customtkinter.CTk):
 
         except sqlite3.Error as e:
             tkinter.messagebox.showerror("Error", f"Error fetching data from the database: {e}")
+        finally:
+            cursor.close()
+            conn.close()
+
+            self.treeview.yview_moveto(1)
 
     def calculate_total_price(self):
         description = self.input_description.get()
@@ -194,6 +199,7 @@ class App(customtkinter.CTk):
                        (unique_id, description, quantity, self.Resultado1.get(), transferencia))
 
             conn.commit()
+
             self.load_data_from_database1()
             self.input_description.delete(0, "end")
             self.input_quantity.delete(0, "end")
