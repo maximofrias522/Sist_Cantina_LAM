@@ -20,6 +20,8 @@ class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
 
+        self.Resultado1 = tkinter.StringVar()
+
         # configure window
         self.title("Cantina LAM")
         self.geometry(f"{1100}x{580}")
@@ -113,6 +115,9 @@ class App(customtkinter.CTk):
         self.input_quantity = customtkinter.CTkEntry(self, placeholder_text="Cantidad")
         self.input_quantity.grid(row=1, column=2, padx=(0, 0), pady=(10, 20), sticky="nsew")
 
+        self.input_description.bind("<KeyRelease>", lambda event: self.calculate_total_price())
+        self.input_quantity.bind("<KeyRelease>", lambda event: self.calculate_total_price())
+
         # Create checkbox for "transferencia validation"
         self.checkbox_1 = customtkinter.CTkCheckBox(self, text="Transferencia")
         self.checkbox_1.grid(row=1, column=3, pady=(10, 0), padx=(10), sticky="n")
@@ -125,7 +130,7 @@ class App(customtkinter.CTk):
         # Get the input data from the Entry widgets
         description = self.input_description.get()
         quantity = self.input_quantity.get()
-        transferencia = "Sí" if self.checkbox_1.get() else "No" 
+        transferencia = "Sí" if self.checkbox_1.get(1) else "No" 
 
         # set default values
         self.appearance_mode_optionemenu.set("Dark")
@@ -150,29 +155,46 @@ class App(customtkinter.CTk):
         except sqlite3.Error as e:
             tkinter.messagebox.showerror("Error", f"Error fetching data from the database: {e}")
 
-    def submit_data(self):
-        # Get the input data from the Entry widgets
+    def calculate_total_price(self):
         description = self.input_description.get()
-        quantity = self.input_quantity.get()
-        transferencia = self.checkbox_1.get()
-        unique_id = generate_unique_id()
+        quantity = int(self.input_quantity.get())  # Convertir a entero
 
-        # Connect to the database
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
 
         try:
-            # Insert the data into the "Ventas" table
-            cursor.execute("INSERT INTO Ventas (Nro_Venta, Descripcion_Producto, Cantidad, Transferencia) VALUES (?, ?, ?, ?)",
-                       (unique_id, description, quantity, transferencia))
+            # Obtener el precio del producto de la base de datos usando la descripción como referencia
+            cursor.execute("SELECT Precio_Unitario_Producto FROM Stock WHERE Descripcion_Producto = ?", (description,))
+            row = cursor.fetchone()
+            if row is not None:
+                precio_unitario = float(row[0])  # Convertir a número (float)
+                total_price = precio_unitario * quantity
+                self.Resultado1.set(total_price)  # Actualizar el valor en la variable StringVar
+            else:
+                tkinter.messagebox.showinfo("Información", "Producto no encontrado en la base de datos")
 
-            # Commit the transaction
+        except sqlite3.Error as e:
+            tkinter.messagebox.showerror("Error", f"Error al consultar datos en la base: {e}")
+
+        finally:
+            cursor.close()
+            conn.close()
+
+    def submit_data(self):
+        description = self.input_description.get()
+        quantity = int(self.input_quantity.get())
+        transferencia = self.checkbox_1.get()
+        unique_id = generate_unique_id()
+
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute("INSERT INTO Ventas (Nro_Venta, Descripcion_Producto, Cantidad, Precio_Total, Transferencia) VALUES (?, ?, ?, ?, ?)",
+                       (unique_id, description, quantity, self.Resultado1.get(), transferencia))
+
             conn.commit()
-
-            # Reload the data from the database and update the treeview
             self.load_data_from_database1()
-
-            # Clear the input fields after successfully inserting the data
             self.input_description.delete(0, "end")
             self.input_quantity.delete(0, "end")
 
@@ -181,9 +203,9 @@ class App(customtkinter.CTk):
             conn.rollback()
 
         finally:
-            # Close the database connection
             cursor.close()
             conn.close()
+
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -193,7 +215,7 @@ class App(customtkinter.CTk):
         customtkinter.set_widget_scaling(new_scaling_float)
 
     def sidebar_Ventas_event(self):
-        print("sidebar ventas click")
+        # print("sidebar ventas click")
         # Remove the new label (if it was shown)
         self.stock_treeview.grid_forget()
 
@@ -205,7 +227,7 @@ class App(customtkinter.CTk):
         self.submit_button.grid(row=2, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="nsew")
 
     def sidebar_Stock_event(self):
-        print("sidebar stock click")
+        # print("sidebar stock click")
         self.treeview.grid_forget()
         self.input_description.grid_forget()
         self.input_quantity.grid_forget()
@@ -239,8 +261,6 @@ class App(customtkinter.CTk):
 
         except sqlite3.Error as e:
             tkinter.messagebox.showerror("Error", f"Error fetching data from the database: {e}")
-
-
 
 if __name__ == "__main__":
     app = App()
