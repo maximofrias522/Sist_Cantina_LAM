@@ -67,7 +67,7 @@ class App(customtkinter.CTk):
                              fieldbackground="#D3D3D3")
         self.style.map("Treeview",
                        background=[("selected", "#347083")],
-                       foreground=[("selected", "black")],
+                       foreground=[("selected", "white")],
                        relief=[("selected", "flat")])
 
         # Configuración de las líneas de separación en la tabla
