@@ -59,16 +59,52 @@ class App(customtkinter.CTk):
         self.treeview.heading("Fecha_y_hora", text="Fecha y hora")
         self.treeview.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
 
+        self.style = tk.ttk.Style()
+        self.style.configure("Treeview",
+                             background="#D3D3D3",
+                             foreground="black",
+                             rowheight=25,
+                             fieldbackground="#D3D3D3")
+        self.style.map("Treeview",
+                       background=[("selected", "#347083")],
+                       foreground=[("selected", "black")],
+                       relief=[("selected", "flat")])
+
+        # Configuración de las líneas de separación en la tabla
+        self.style.configure("Treeview.Heading", font=('Helvetica', 12, "bold"))
+        self.style.layout("Treeview", [('Treeview.treearea', {'sticky': 'nswe'})])  # Para tener líneas verticales y horizontales
+        self.style.configure("Treeview.Heading", background="gray", foreground="black", bordercolor="black", lightcolor="gray", darkcolor="gray")
+        self.treeview.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
+
         # Set the width of each column
         self.treeview.column("Nro_Venta", width=60)
         self.treeview.column("Descripcion_Producto", width=140)
         self.treeview.column("Cantidad", width=50)
         self.treeview.column("Precio_Total", width=70)
-        self.treeview.column("Transferencia", width=80)
+        self.treeview.column("Transferencia", width=50)
         self.treeview.column("Fecha_y_hora", width=75)
 
+        def on_double_click(event):
+            item = self.treeview.selection()[0]
+            selected_id = self.treeview.item(item)["values"][0]
+
+             # Delete from the GUI (self.treeview)
+            self.treeview.delete(item)
+
+            # Delete from the database (Ventas table)
+            conn = sqlite3.connect(self.db_name)
+            cursor = conn.cursor()
+            try:
+                cursor.execute("DELETE FROM Ventas WHERE Nro_Venta=?", (selected_id,))
+                conn.commit()  # Commit the changes to the database
+            finally:
+                cursor.close()
+                conn.close()
+
+        self.treeview.bind("<Double-1>", on_double_click)
+
         # populate the treeview with data from the database
-        self.load_data_from_database()
+        self.load_data_from_database1()
 
         # Create input fields (Entry widgets) for each column in the table
         self.input_description = customtkinter.CTkEntry(self, placeholder_text="Descripcion de producto")
@@ -95,7 +131,7 @@ class App(customtkinter.CTk):
         self.appearance_mode_optionemenu.set("Dark")
         self.scaling_optionemenu.set("100%")
 
-    def load_data_from_database(self):
+    def load_data_from_database1(self):
         # Connect to the database
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
@@ -121,12 +157,7 @@ class App(customtkinter.CTk):
         transferencia = self.checkbox_1.get()
         unique_id = generate_unique_id()
 
-    # Validate the data (you can add your own validation logic here)
-        # if not description or not quantity or not transferencia:
-        #     tkinter.messagebox.showwarning("Warning", "Please fill in all fields.")
-        #     return
-        
-         # Connect to the database
+        # Connect to the database
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
 
@@ -139,14 +170,11 @@ class App(customtkinter.CTk):
             conn.commit()
 
             # Reload the data from the database and update the treeview
-            self.load_data_from_database()
+            self.load_data_from_database1()
 
             # Clear the input fields after successfully inserting the data
             self.input_description.delete(0, "end")
             self.input_quantity.delete(0, "end")
-            self.checkbox_1(False)
-
-            tkinter.messagebox.showinfo("Success", "Datos ingresados correctamente.")
 
         except sqlite3.Error as e:
             tkinter.messagebox.showerror("Error", f"Error al insertar datos en la base: {e}")
@@ -166,9 +194,53 @@ class App(customtkinter.CTk):
 
     def sidebar_Ventas_event(self):
         print("sidebar ventas click")
+        # Remove the new label (if it was shown)
+        self.stock_treeview.grid_forget()
+
+        # Show the widgets in columns 1, 2, and 3 again
+        self.treeview.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
+        self.input_description.grid(row=1, column=1, padx=(20, 0), pady=(10, 20), sticky="nsew")
+        self.input_quantity.grid(row=1, column=2, padx=(0, 0), pady=(10, 20), sticky="nsew")
+        self.checkbox_1.grid(row=1, column=3, pady=(10, 0), padx=(10), sticky="n")
+        self.submit_button.grid(row=2, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="nsew")
 
     def sidebar_Stock_event(self):
         print("sidebar stock click")
+        self.treeview.grid_forget()
+        self.input_description.grid_forget()
+        self.input_quantity.grid_forget()
+        self.checkbox_1.grid_forget()
+        self.submit_button.grid_forget()
+
+        self.stock_treeview = tk.ttk.Treeview(self, columns=("ID_producto", "Descripcion_Producto", "Precio_Unitario_Producto"), show="headings", selectmode="browse")
+        self.stock_treeview.heading("ID_producto", text="ID de Producto")
+        self.stock_treeview.heading("Descripcion_Producto", text="Descripcion de producto")
+        self.stock_treeview.heading("Precio_Unitario_Producto", text="Precio Unitario")
+        self.stock_treeview.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 20), sticky="nsew")
+
+        # populate the treeview with data from the database
+        self.load_data_from_database2()
+
+    def load_data_from_database2(self):
+        # connect to the database
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+
+        try:
+            # Execute a SELECT query
+            cursor.execute("SELECT ID_producto, Descripcion_Producto, Precio_Unitario_Producto FROM Stock")
+
+            # Clear existing data in the treeview
+            self.stock_treeview.delete(*self.stock_treeview.get_children())
+
+            # Insert data from the database into the treeview
+            for row in cursor.fetchall():
+                self.stock_treeview.insert("", "end", values=row)
+
+        except sqlite3.Error as e:
+            tkinter.messagebox.showerror("Error", f"Error fetching data from the database: {e}")
+
+
 
 if __name__ == "__main__":
     app = App()
