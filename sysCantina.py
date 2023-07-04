@@ -119,8 +119,11 @@ class App(customtkinter.CTk):
         self.input_quantity.bind("<KeyRelease>", lambda event: self.calculate_total_price())
 
         # Create checkbox for "transferencia validation"
-        self.checkbox_1 = customtkinter.CTkCheckBox(self, text="Transferencia")
-        self.checkbox_1.grid(row=1, column=3, pady=(10, 0), padx=(10), sticky="n")
+        # self.checkbox_1 = customtkinter.CTkCheckBox(self, text="Transferencia")
+        # self.checkbox_1.grid(row=1, column=3, pady=(10, 0), padx=(10), sticky="n")
+
+        self.string_input_button = customtkinter.CTkButton(self, text="Transferencia", command=self.open_input_dialog_event)
+        self.string_input_button.grid(row=1, column=3, columnspan=3, padx=(5, 20), pady=(10, 20), sticky="nsew")
 
         # Create "Submit" button
         self.submit_button = customtkinter.CTkButton(master=self, text="Cargar", command=self.submit_data)
@@ -188,15 +191,19 @@ class App(customtkinter.CTk):
     def submit_data(self):
         description = self.input_description.get()
         quantity = int(self.input_quantity.get())
-        transferencia = self.checkbox_1.get()
+        transferencia = self.string_input_button()
         unique_id = generate_unique_id()
+        # unique_id1 = generate_unique_id()
 
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
 
         try:
             cursor.execute("INSERT INTO Ventas (Nro_Venta, Descripcion_Producto, Cantidad, Precio_Total, Transferencia) VALUES (?, ?, ?, ?, ?)",
-                       (unique_id, description, quantity, self.Resultado1.get(), transferencia))
+                        (unique_id, description, quantity, self.Resultado1.get(), transferencia))
+            
+            # cursor.execute("INSERT INTO Transferencia_info (ID, Nombre_Y_apellido, Monto) VALUES (?, ?, ?)",
+                        # (unique_id1, , ))                
 
             conn.commit()
 
@@ -229,16 +236,18 @@ class App(customtkinter.CTk):
         self.treeview.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         self.input_description.grid(row=1, column=1, padx=(20, 0), pady=(10, 20), sticky="nsew")
         self.input_quantity.grid(row=1, column=2, padx=(0, 0), pady=(10, 20), sticky="nsew")
-        self.checkbox_1.grid(row=1, column=3, pady=(10, 0), padx=(10), sticky="n")
+        # self.checkbox_1.grid(row=1, column=3, pady=(10, 0), padx=(10), sticky="n")
         self.submit_button.grid(row=2, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="nsew")
+        self.string_input_button.grid(row=1, column=3, columnspan=3, padx=(5, 20), pady=(10, 20), sticky="nsew")
 
     def sidebar_Stock_event(self):
         # print("sidebar stock click")
         self.treeview.grid_forget()
         self.input_description.grid_forget()
         self.input_quantity.grid_forget()
-        self.checkbox_1.grid_forget()
+        # self.checkbox_1.grid_forget()
         self.submit_button.grid_forget()
+        self.string_input_button.grid_forget()
 
         self.stock_treeview = tk.ttk.Treeview(self, columns=("ID_producto", "Descripcion_Producto", "Precio_Unitario_Producto"), show="headings", selectmode="browse")
         self.stock_treeview.heading("ID_producto", text="ID de Producto")
@@ -268,6 +277,9 @@ class App(customtkinter.CTk):
         except sqlite3.Error as e:
             tkinter.messagebox.showerror("Error", f"Error fetching data from the database: {e}")
 
+    def open_input_dialog_event(self):
+        customtkinter.CTkInputDialog(text="Nombre y apellido:", title="Datos de transferencia")
+        
 if __name__ == "__main__":
     app = App()
     app.mainloop()
