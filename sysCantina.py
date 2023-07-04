@@ -60,7 +60,7 @@ class App(customtkinter.CTk):
         self.treeview.heading("Transferencia", text="Transferencia")
         self.treeview.heading("Fecha_y_hora", text="Fecha y hora")
         self.treeview.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
-
+    
         self.style = tk.ttk.Style()
         self.style.configure("Treeview",
                              background="#D3D3D3",
