@@ -113,7 +113,7 @@ class App(customtkinter.CTk):
         self.input_description.grid(row=1, column=1, padx=(20, 0), pady=(10, 20), sticky="nsew")
 
         self.input_quantity = customtkinter.CTkEntry(self, placeholder_text="Cantidad")
-        self.input_quantity.grid(row=1, column=2, padx=(0, 0), pady=(10, 20), sticky="nsew")
+        self.input_quantity.grid(row=1, column=2, padx=(5, 0), pady=(10, 20), sticky="nsew")
 
         self.input_description.bind("<KeyRelease>", lambda event: self.calculate_total_price())
         self.input_quantity.bind("<KeyRelease>", lambda event: self.calculate_total_price())
@@ -128,16 +128,6 @@ class App(customtkinter.CTk):
         # Create "Submit" button
         self.submit_button = customtkinter.CTkButton(master=self, text="Cargar", command=self.submit_data)
         self.submit_button.grid(row=2, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="nsew")
-
-    def submit_data(self):
-        # Get the input data from the Entry widgets
-        # description = self.input_description.get()
-        # quantity = self.input_quantity.get()
-        # transferencia = "Sí" if self.checkbox_1.get(1) else "No" 
-
-        # set default values
-        self.appearance_mode_optionemenu.set("Dark")
-        self.scaling_optionemenu.set("100%")
 
     def load_data_from_database1(self):
         # Connect to the database
@@ -235,7 +225,7 @@ class App(customtkinter.CTk):
         # Show the widgets in columns 1, 2, and 3 again
         self.treeview.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         self.input_description.grid(row=1, column=1, padx=(20, 0), pady=(10, 20), sticky="nsew")
-        self.input_quantity.grid(row=1, column=2, padx=(0, 0), pady=(10, 20), sticky="nsew")
+        self.input_quantity.grid(row=1, column=2, padx=(5, 0), pady=(10, 20), sticky="nsew")
         # self.checkbox_1.grid(row=1, column=3, pady=(10, 0), padx=(10), sticky="n")
         self.submit_button.grid(row=2, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="nsew")
         self.string_input_button.grid(row=1, column=3, columnspan=3, padx=(5, 20), pady=(10, 20), sticky="nsew")
