@@ -40,11 +40,6 @@ class App(customtkinter.CTk):
         self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
         self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, text="Stock", command=self.sidebar_Stock_event)
         self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
-        self.appearance_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Cambiar Tema:", anchor="w")
-        self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
-        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["Dark", "Light", "System"],
-                                                                       command=self.change_appearance_mode_event)
-        self.appearance_mode_optionemenu.grid(row=6, column=0, padx=20, pady=(10, 10))
         self.scaling_label = customtkinter.CTkLabel(self.sidebar_frame, text="Tamaño de UI:", anchor="w")
         self.scaling_label.grid(row=7, column=0, padx=20, pady=(10, 0))
         self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["100%", "110%", "120%"],
@@ -209,10 +204,6 @@ class App(customtkinter.CTk):
             cursor.close()
             conn.close()
 
-
-    def change_appearance_mode_event(self, new_appearance_mode: str):
-        customtkinter.set_appearance_mode(new_appearance_mode)
-
     def change_scaling_event(self, new_scaling: str):
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
         customtkinter.set_widget_scaling(new_scaling_float)
@@ -221,6 +212,7 @@ class App(customtkinter.CTk):
         # print("sidebar ventas click")
         # Remove the new label (if it was shown)
         self.stock_treeview.grid_forget()
+        # agregar funciones forget
 
         # Show the widgets in columns 1, 2, and 3 again
         self.treeview.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
@@ -238,6 +230,7 @@ class App(customtkinter.CTk):
         # self.checkbox_1.grid_forget()
         self.submit_button.grid_forget()
         self.string_input_button.grid_forget()
+        # agregar funciones forget
 
         self.stock_treeview = tk.ttk.Treeview(self, columns=("ID_producto", "Descripcion_Producto", "Precio_Unitario_Producto"), show="headings", selectmode="browse")
         self.stock_treeview.heading("ID_producto", text="ID de Producto")
@@ -247,6 +240,22 @@ class App(customtkinter.CTk):
 
         # populate the treeview with data from the database
         self.load_data_from_database2()
+
+    def open_input_dialog_event(self):
+        self.treeview.grid_forget()
+        self.input_description.grid_forget()
+        self.input_quantity.grid_forget()
+        self.submit_button.grid_forget()
+        self.string_input_button.grid_forget()
+
+        self.radiobutton_frame = customtkinter.CTkFrame(self)
+        self.radiobutton_frame.grid(row=0, column=2, padx=(20, 20), pady=(20, 20), sticky="nsew")
+        self.label_radio_group = customtkinter.CTkLabel(master=self.radiobutton_frame, text="Ingresar Transferencia:", font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.label_radio_group.grid(row=0, column=2, padx=20, pady=(20, 10), sticky="")
+        self.input_Name = customtkinter.CTkEntry(self, placeholder_text="Nombre y Apellido")
+        self.input_Name.grid(row=0, column= 1, columnspan=2, padx=(20,20), pady=(10))
+        self.input_monto = customtkinter.CTkEntry(self, placeholder_text="Monto Transferido")
+        self.input_monto.grid(row=0, column= 1, columnspan=2, padx=(20,20), pady=(10))
 
     def load_data_from_database2(self):
         # connect to the database
@@ -267,8 +276,6 @@ class App(customtkinter.CTk):
         except sqlite3.Error as e:
             tkinter.messagebox.showerror("Error", f"Error fetching data from the database: {e}")
 
-    def open_input_dialog_event(self):
-        customtkinter.CTkInputDialog(text="Nombre y apellido:", title="Datos de transferencia")
         
 if __name__ == "__main__":
     app = App()
