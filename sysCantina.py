@@ -27,9 +27,13 @@ class App(customtkinter.CTk):
         self.geometry(f"{1100}x{580}")
 
         # configure grid layout (4x4)
-        self.grid_columnconfigure((1, 2, 3), weight=1)
+        self.grid_columnconfigure((1, 2, 3,), weight=1)
         self.grid_rowconfigure((0), weight=1)
-       
+        self.grid_columnconfigure(1, weight=1)  # Columna 1 con peso 1 (expandible)
+        self.grid_columnconfigure(2, weight=1)  # Columna 2 con peso 1 (expandible)
+        self.grid_rowconfigure(0, weight=1)  # Fila 0 con peso 1 (expandible)
+        self.grid_rowconfigure(1, weight=1)  # Fila 1 con peso 1 (expandible)
+
         # create sidebar frame with widgets
         self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
@@ -46,16 +50,22 @@ class App(customtkinter.CTk):
                                                                command=self.change_scaling_event)
         self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
 
+        # create aesthetic line
+        # self.aesthetic_line = customtkinter.CTkFrame(self, width=1, corner_radius=0)
+        # self.aesthetic_line.grid(row=0, rowspan=3, column=1, columnspan=3, sticky="nsew")
+        # self.aesthetic_line.grid_rowconfigure(4, weight=1)
+
         # create main treeview for database Ventas visualization
-        self.treeview = tk.ttk.Treeview(self, columns=("Nro_Venta", "Descripcion_Producto", "Cantidad", "Precio_Total", "Transferencia", "Fecha_y_hora"), show="headings", selectmode="browse")
+        self.treeview = tk.ttk.Treeview(self, columns=("Nro_Venta", "Descripcion_Producto", "Cantidad", "Precio_Total", "Transferencia_de", "Monto", "Fecha_y_hora"), show="headings", selectmode="browse")
         self.treeview.heading("Nro_Venta", text="ID de venta")
         self.treeview.heading("Descripcion_Producto", text="Descripcion de producto")
         self.treeview.heading("Cantidad", text="Cantidad")
         self.treeview.heading("Precio_Total", text="Precio total")
-        self.treeview.heading("Transferencia", text="Transferencia")
+        self.treeview.heading("Transferencia_de", text="Transferencia")
+        self.treeview.heading("Monto", text="Monto")
         self.treeview.heading("Fecha_y_hora", text="Fecha y hora")
         self.treeview.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
-    
+
         self.style = tk.ttk.Style()
         self.style.configure("Treeview",
                              background="#D3D3D3",
@@ -71,15 +81,16 @@ class App(customtkinter.CTk):
         self.style.configure("Treeview.Heading", font=('Helvetica', 12, "bold"))
         self.style.layout("Treeview", [('Treeview.treearea', {'sticky': 'nswe'})])  # Para tener líneas verticales y horizontales
         self.style.configure("Treeview.Heading", background="gray", foreground="black", bordercolor="black", lightcolor="gray", darkcolor="gray")
-        self.treeview.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
+        self.treeview.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 60), sticky="nsew")
 
         # Set the width of each column
-        self.treeview.column("Nro_Venta", width=60)
+        self.treeview.column("Nro_Venta", width=40)
         self.treeview.column("Descripcion_Producto", width=140)
-        self.treeview.column("Cantidad", width=50)
-        self.treeview.column("Precio_Total", width=70)
-        self.treeview.column("Transferencia", width=50)
-        self.treeview.column("Fecha_y_hora", width=75)
+        self.treeview.column("Cantidad", width=30)
+        self.treeview.column("Precio_Total", width=40)
+        self.treeview.column("Transferencia_de", width=60)
+        self.treeview.column("Monto", width=15)
+        self.treeview.column("Fecha_y_hora", width=120)
 
         def on_double_click(event):
             item = self.treeview.selection()[0]
@@ -104,22 +115,25 @@ class App(customtkinter.CTk):
         self.load_data_from_database1()
 
         # Create input fields (Entry widgets) for each column in the table
+        self.input_transferencia_datos = customtkinter.CTkEntry(self, placeholder_text="Nombre y apellido")
+        self.input_transferencia_datos.grid(row=0, column=1, columnspan=2, padx=(20,0), pady=(435,10), sticky="sew")
+
+        self.input_monto = customtkinter.CTkEntry(self, placeholder_text="Monto Transferido")
+        self.input_monto.grid(row=0, column=3, padx=(5,20), pady=(435,10), sticky="sew")
+
         self.input_description = customtkinter.CTkEntry(self, placeholder_text="Descripcion de producto")
-        self.input_description.grid(row=1, column=1, padx=(20, 0), pady=(10, 20), sticky="nsew")
+        self.input_description.grid(row=1, column=1, columnspan=2, padx=(20, 0), pady=(10, 20), sticky="new")
 
         self.input_quantity = customtkinter.CTkEntry(self, placeholder_text="Cantidad")
-        self.input_quantity.grid(row=1, column=2, padx=(5, 0), pady=(10, 20), sticky="nsew")
+        self.input_quantity.grid(row=1, column=3, padx=(5, 20), pady=(10, 20), sticky="new")
 
         self.input_description.bind("<KeyRelease>", lambda event: self.calculate_total_price())
         self.input_quantity.bind("<KeyRelease>", lambda event: self.calculate_total_price())
 
-        # Create checkbox for "transferencia validation"
-        # self.checkbox_1 = customtkinter.CTkCheckBox(self, text="Transferencia")
-        # self.checkbox_1.grid(row=1, column=3, pady=(10, 0), padx=(10), sticky="n")
 
         # Create "Submit" button
         self.submit_button = customtkinter.CTkButton(master=self, text="Cargar", command=self.submit_data)
-        self.submit_button.grid(row=2, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="nsew")
+        self.submit_button.grid(row=2, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="new")
 
     def load_data_from_database1(self):
         # Connect to the database
@@ -128,7 +142,7 @@ class App(customtkinter.CTk):
 
         try:
             # Execute a SELECT query
-            cursor.execute("SELECT Nro_Venta, Descripcion_Producto, Cantidad, Precio_Total, Transferencia, Fecha_y_hora FROM Ventas")
+            cursor.execute("SELECT Nro_Venta, Descripcion_Producto, Cantidad, Precio_Total, Transferencia_de, Monto, Fecha_y_hora FROM Ventas")
 
             # Clear existing data in the treeview
             self.treeview.delete(*self.treeview.get_children())
@@ -173,26 +187,26 @@ class App(customtkinter.CTk):
     def submit_data(self):
         description = self.input_description.get()
         quantity = int(self.input_quantity.get())
-        transferencia = self.string_input_button()
+        transferencia = self.input_transferencia_datos.get()
+        monto = self.input_monto.get()
         unique_id = generate_unique_id()
-        # unique_id1 = generate_unique_id()
+        ahora = time.strftime("%x") + " " + time.strftime("%X")
 
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
 
         try:
-            cursor.execute("INSERT INTO Ventas (Nro_Venta, Descripcion_Producto, Cantidad, Precio_Total, Transferencia) VALUES (?, ?, ?, ?, ?)",
-                        (unique_id, description, quantity, self.Resultado1.get(), transferencia))
-            
-            # cursor.execute("INSERT INTO Transferencia_info (ID, Nombre_Y_apellido, Monto) VALUES (?, ?, ?)",
-                        # (unique_id1, , ))                
+            cursor.execute("INSERT INTO Ventas (Nro_Venta, Descripcion_Producto, Cantidad, Precio_Total, Transferencia_de, Monto, Fecha_y_hora) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                        (unique_id, description, quantity, self.Resultado1.get(), transferencia, monto, ahora))
+
 
             conn.commit()
 
             self.load_data_from_database1()
             self.input_description.delete(0, "end")
             self.input_quantity.delete(0, "end")
-
+            self.input_monto.delete(0, "end")
+            self.input_transferencia_datos.delete(0, "end")
         except sqlite3.Error as e:
             tkinter.messagebox.showerror("Error", f"Error al insertar datos en la base: {e}")
             conn.rollback()
@@ -211,26 +225,27 @@ class App(customtkinter.CTk):
         self.stock_treeview.grid_forget()
 
         # Show the widgets in columns 1, 2, and 3 again
-        self.treeview.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
-        self.input_description.grid(row=1, column=1, padx=(20, 0), pady=(10, 20), sticky="nsew")
-        self.input_quantity.grid(row=1, column=2, padx=(5, 0), pady=(10, 20), sticky="nsew")
-        # self.checkbox_1.grid(row=1, column=3, pady=(10, 0), padx=(10), sticky="n")
-        self.submit_button.grid(row=2, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="nsew")
-        self.string_input_button.grid(row=1, column=3, columnspan=3, padx=(5, 20), pady=(10, 20), sticky="nsew")
+        self.input_monto.grid(row=0, column=3, padx=(5,20), pady=(435,10), sticky="sew")
+        self.input_description.grid(row=1, column=1, columnspan=2, padx=(20, 0), pady=(10, 20), sticky="sew")
+        self.input_transferencia_datos.grid(row=0, column=1, columnspan=2, padx=(20,0), pady=(435,10), sticky="sew")
+        self.submit_button.grid(row=2, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="sew")
+        self.input_quantity.grid(row=1, column=3, padx=(5, 20), pady=(10, 20), sticky="sew")
+        self.treeview.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 60), sticky="nsew")
 
     def sidebar_Stock_event(self):
         # print("sidebar stock click")
         self.treeview.grid_forget()
         self.input_description.grid_forget()
         self.input_quantity.grid_forget()
-        # self.checkbox_1.grid_forget()
         self.submit_button.grid_forget()
+        self.input_transferencia_datos.grid_forget()
+        self.input_monto.grid_forget()
 
         self.stock_treeview = tk.ttk.Treeview(self, columns=("ID_producto", "Descripcion_Producto", "Precio_Unitario_Producto"), show="headings", selectmode="browse")
         self.stock_treeview.heading("ID_producto", text="ID de Producto")
         self.stock_treeview.heading("Descripcion_Producto", text="Descripcion de producto")
         self.stock_treeview.heading("Precio_Unitario_Producto", text="Precio Unitario")
-        self.stock_treeview.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 20), sticky="nsew")
+        self.stock_treeview.grid(row=0, rowspan=3, column=1, columnspan=3, padx=(20, 20), pady=(20, 20), sticky="nsew")
 
         # populate the treeview with data from the database
         self.load_data_from_database2()
@@ -254,7 +269,7 @@ class App(customtkinter.CTk):
         except sqlite3.Error as e:
             tkinter.messagebox.showerror("Error", f"Error fetching data from the database: {e}")
 
-        
+
 if __name__ == "__main__":
     app = App()
     app.mainloop()
