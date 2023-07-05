@@ -117,9 +117,6 @@ class App(customtkinter.CTk):
         # self.checkbox_1 = customtkinter.CTkCheckBox(self, text="Transferencia")
         # self.checkbox_1.grid(row=1, column=3, pady=(10, 0), padx=(10), sticky="n")
 
-        self.string_input_button = customtkinter.CTkButton(self, text="Transferencia", command=self.open_input_dialog_event)
-        self.string_input_button.grid(row=1, column=3, columnspan=3, padx=(5, 20), pady=(10, 20), sticky="nsew")
-
         # Create "Submit" button
         self.submit_button = customtkinter.CTkButton(master=self, text="Cargar", command=self.submit_data)
         self.submit_button.grid(row=2, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="nsew")
@@ -212,7 +209,6 @@ class App(customtkinter.CTk):
         # print("sidebar ventas click")
         # Remove the new label (if it was shown)
         self.stock_treeview.grid_forget()
-        # agregar funciones forget
 
         # Show the widgets in columns 1, 2, and 3 again
         self.treeview.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
@@ -229,8 +225,6 @@ class App(customtkinter.CTk):
         self.input_quantity.grid_forget()
         # self.checkbox_1.grid_forget()
         self.submit_button.grid_forget()
-        self.string_input_button.grid_forget()
-        # agregar funciones forget
 
         self.stock_treeview = tk.ttk.Treeview(self, columns=("ID_producto", "Descripcion_Producto", "Precio_Unitario_Producto"), show="headings", selectmode="browse")
         self.stock_treeview.heading("ID_producto", text="ID de Producto")
@@ -240,22 +234,6 @@ class App(customtkinter.CTk):
 
         # populate the treeview with data from the database
         self.load_data_from_database2()
-
-    def open_input_dialog_event(self):
-        self.treeview.grid_forget()
-        self.input_description.grid_forget()
-        self.input_quantity.grid_forget()
-        self.submit_button.grid_forget()
-        self.string_input_button.grid_forget()
-
-        self.radiobutton_frame = customtkinter.CTkFrame(self)
-        self.radiobutton_frame.grid(row=0, column=2, padx=(20, 20), pady=(20, 20), sticky="nsew")
-        self.label_radio_group = customtkinter.CTkLabel(master=self.radiobutton_frame, text="Ingresar Transferencia:", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.label_radio_group.grid(row=0, column=2, padx=20, pady=(20, 10), sticky="")
-        self.input_Name = customtkinter.CTkEntry(self, placeholder_text="Nombre y Apellido")
-        self.input_Name.grid(row=0, column= 1, columnspan=2, padx=(20,20), pady=(10))
-        self.input_monto = customtkinter.CTkEntry(self, placeholder_text="Monto Transferido")
-        self.input_monto.grid(row=0, column= 1, columnspan=2, padx=(20,20), pady=(10))
 
     def load_data_from_database2(self):
         # connect to the database
