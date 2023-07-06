@@ -47,13 +47,9 @@ class App(customtkinter.CTk):
         self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
         self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, text="Productos", command=self.sidebar_Stock_event)
         self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
-        self.sidebar_firma = customtkinter.CTkLabel(self.sidebar_frame, text="Developed by Máximo Frías", font=customtkinter.CTkFont(size=6))
+        self.sidebar_firma = customtkinter.CTkLabel(self.sidebar_frame, text="Developed by Máximo Frías | V1.0", font=customtkinter.CTkFont(size=6))
         self.sidebar_firma.grid(row=7, column=0, padx=20, pady=(10, 0))
 
-        # create aesthetic line
-        # self.aesthetic_line = customtkinter.CTkFrame(self, width=1, corner_radius=0)
-        # self.aesthetic_line.grid(row=0, rowspan=3, column=1, columnspan=3, sticky="nsew")
-        # self.aesthetic_line.grid_rowconfigure(4, weight=1)
 
         # create main treeview for database Ventas visualization
         self.treeview = tk.ttk.Treeview(self, columns=("Nro_Venta", "Descripcion_Producto", "Cantidad", "Precio_Total", "Transferencia_de", "Monto", "Fecha_y_hora"), show="headings", selectmode="browse")
