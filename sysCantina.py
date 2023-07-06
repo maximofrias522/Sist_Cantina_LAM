@@ -12,6 +12,8 @@ def generate_unique_id():
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
+customtkinter.set_window_scaling(1.5)
+customtkinter.set_widget_scaling(1.2)
 
 
 class App(customtkinter.CTk):
@@ -33,10 +35,11 @@ class App(customtkinter.CTk):
         self.grid_columnconfigure(2, weight=1)  # Columna 2 con peso 1 (expandible)
         self.grid_rowconfigure(0, weight=1)  # Fila 0 con peso 1 (expandible)
         self.grid_rowconfigure(1, weight=1)  # Fila 1 con peso 1 (expandible)
+        self.grid_rowconfigure(2, weight=1)
 
         # create sidebar frame with widgets
         self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
-        self.sidebar_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
+        self.sidebar_frame.grid(row=0, column=0, rowspan=5, sticky="nsew")
         self.sidebar_frame.grid_rowconfigure(4, weight=1)
         self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="Cantina LAM 2023", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
@@ -44,11 +47,8 @@ class App(customtkinter.CTk):
         self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
         self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, text="Stock", command=self.sidebar_Stock_event)
         self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
-        self.scaling_label = customtkinter.CTkLabel(self.sidebar_frame, text="Tamaño de UI:", anchor="w")
-        self.scaling_label.grid(row=7, column=0, padx=20, pady=(10, 0))
-        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["100%", "110%", "120%"],
-                                                               command=self.change_scaling_event)
-        self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
+        self.sidebar_firma = customtkinter.CTkLabel(self.sidebar_frame, text="Developed by Máximo Frías", font=customtkinter.CTkFont(size=6))
+        self.sidebar_firma.grid(row=7, column=0, padx=20, pady=(10, 0))
 
         # create aesthetic line
         # self.aesthetic_line = customtkinter.CTkFrame(self, width=1, corner_radius=0)
@@ -81,7 +81,7 @@ class App(customtkinter.CTk):
         self.style.configure("Treeview.Heading", font=('Helvetica', 12, "bold"))
         self.style.layout("Treeview", [('Treeview.treearea', {'sticky': 'nswe'})])  # Para tener líneas verticales y horizontales
         self.style.configure("Treeview.Heading", background="gray", foreground="black", bordercolor="black", lightcolor="gray", darkcolor="gray")
-        self.treeview.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 60), sticky="nsew")
+        self.treeview.grid(row=0, rowspan=3, column=1, columnspan=3, padx=(20, 20), pady=(10, 60), sticky="nsew")
 
         # Set the width of each column
         self.treeview.column("Nro_Venta", width=40)
@@ -116,16 +116,16 @@ class App(customtkinter.CTk):
 
         # Create input fields (Entry widgets) for each column in the table
         self.input_transferencia_datos = customtkinter.CTkEntry(self, placeholder_text="Nombre y apellido")
-        self.input_transferencia_datos.grid(row=0, column=1, columnspan=2, padx=(20,0), pady=(435,10), sticky="sew")
+        self.input_transferencia_datos.grid(row=2, column=1, columnspan=2, padx=(20,0), pady=(25,10), sticky="sew")
 
         self.input_monto = customtkinter.CTkEntry(self, placeholder_text="Monto Transferido")
-        self.input_monto.grid(row=0, column=3, padx=(5,20), pady=(435,10), sticky="sew")
+        self.input_monto.grid(row=2, column=3, padx=(5,20), pady=(25,10), sticky="sew")
 
         self.input_description = customtkinter.CTkEntry(self, placeholder_text="Descripcion de producto")
-        self.input_description.grid(row=1, column=1, columnspan=2, padx=(20, 0), pady=(10, 20), sticky="new")
+        self.input_description.grid(row=3, column=1, columnspan=2, padx=(20, 0), pady=(20, 20), sticky="new")
 
         self.input_quantity = customtkinter.CTkEntry(self, placeholder_text="Cantidad")
-        self.input_quantity.grid(row=1, column=3, padx=(5, 20), pady=(10, 20), sticky="new")
+        self.input_quantity.grid(row=3, column=3, padx=(5, 20), pady=(20, 20), sticky="new")
 
         self.input_description.bind("<KeyRelease>", lambda event: self.calculate_total_price())
         self.input_quantity.bind("<KeyRelease>", lambda event: self.calculate_total_price())
@@ -133,7 +133,7 @@ class App(customtkinter.CTk):
 
         # Create "Submit" button
         self.submit_button = customtkinter.CTkButton(master=self, text="Cargar", command=self.submit_data)
-        self.submit_button.grid(row=2, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="new")
+        self.submit_button.grid(row=4, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="new")
 
     def load_data_from_database1(self):
         # Connect to the database
@@ -215,9 +215,7 @@ class App(customtkinter.CTk):
             cursor.close()
             conn.close()
 
-    def change_scaling_event(self, new_scaling: str):
-        new_scaling_float = int(new_scaling.replace("%", "")) / 100
-        customtkinter.set_widget_scaling(new_scaling_float)
+
 
     def sidebar_Ventas_event(self):
         # print("sidebar ventas click")
@@ -225,12 +223,12 @@ class App(customtkinter.CTk):
         self.stock_treeview.grid_forget()
 
         # Show the widgets in columns 1, 2, and 3 again
-        self.input_monto.grid(row=0, column=3, padx=(5,20), pady=(435,10), sticky="sew")
-        self.input_description.grid(row=1, column=1, columnspan=2, padx=(20, 0), pady=(10, 20), sticky="sew")
-        self.input_transferencia_datos.grid(row=0, column=1, columnspan=2, padx=(20,0), pady=(435,10), sticky="sew")
-        self.submit_button.grid(row=2, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="sew")
-        self.input_quantity.grid(row=1, column=3, padx=(5, 20), pady=(10, 20), sticky="sew")
-        self.treeview.grid(row=0, column=1, columnspan=3, padx=(20, 20), pady=(20, 60), sticky="nsew")
+        self.treeview.grid(row=0, rowspan=3, column=1, columnspan=3, padx=(20, 20), pady=(10, 60), sticky="nsew")
+        self.input_transferencia_datos.grid(row=2, column=1, columnspan=2, padx=(20,0), pady=(25,10), sticky="sew")
+        self.input_monto.grid(row=2, column=3, padx=(5,20), pady=(25,10), sticky="sew")
+        self.input_description.grid(row=3, column=1, columnspan=2, padx=(20, 0), pady=(20, 20), sticky="new")
+        self.input_quantity.grid(row=3, column=3, padx=(5, 20), pady=(20, 20), sticky="new")
+        self.submit_button.grid(row=4, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="new")
 
     def sidebar_Stock_event(self):
         # print("sidebar stock click")
