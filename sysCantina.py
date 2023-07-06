@@ -45,7 +45,7 @@ class App(customtkinter.CTk):
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
         self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, text="Ventas", command=self.sidebar_Ventas_event)
         self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
-        self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, text="Stock", command=self.sidebar_Stock_event)
+        self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, text="Productos", command=self.sidebar_Stock_event)
         self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
         self.sidebar_firma = customtkinter.CTkLabel(self.sidebar_frame, text="Developed by Máximo Frías", font=customtkinter.CTkFont(size=6))
         self.sidebar_firma.grid(row=7, column=0, padx=20, pady=(10, 0))
@@ -81,16 +81,16 @@ class App(customtkinter.CTk):
         self.style.configure("Treeview.Heading", font=('Helvetica', 12, "bold"))
         self.style.layout("Treeview", [('Treeview.treearea', {'sticky': 'nswe'})])  # Para tener líneas verticales y horizontales
         self.style.configure("Treeview.Heading", background="gray", foreground="black", bordercolor="black", lightcolor="gray", darkcolor="gray")
-        self.treeview.grid(row=0, rowspan=3, column=1, columnspan=3, padx=(20, 20), pady=(10, 60), sticky="nsew")
+        self.treeview.grid(row=0, rowspan=3, column=1, columnspan=3, padx=(20, 20), pady=(20, 60), sticky="nsew")
 
         # Set the width of each column
-        self.treeview.column("Nro_Venta", width=40)
-        self.treeview.column("Descripcion_Producto", width=140)
-        self.treeview.column("Cantidad", width=30)
-        self.treeview.column("Precio_Total", width=40)
-        self.treeview.column("Transferencia_de", width=60)
-        self.treeview.column("Monto", width=15)
-        self.treeview.column("Fecha_y_hora", width=120)
+        self.treeview.column("Nro_Venta", width=30)
+        self.treeview.column("Descripcion_Producto", width=130)
+        self.treeview.column("Cantidad", width=20)
+        self.treeview.column("Precio_Total", width=20)
+        self.treeview.column("Transferencia_de", width=100)
+        self.treeview.column("Monto", width=5)
+        self.treeview.column("Fecha_y_hora", width=40)
 
         def on_double_click(event):
             item = self.treeview.selection()[0]
@@ -223,7 +223,7 @@ class App(customtkinter.CTk):
         self.stock_treeview.grid_forget()
 
         # Show the widgets in columns 1, 2, and 3 again
-        self.treeview.grid(row=0, rowspan=3, column=1, columnspan=3, padx=(20, 20), pady=(10, 60), sticky="nsew")
+        self.treeview.grid(row=0, rowspan=3, column=1, columnspan=3, padx=(20, 20), pady=(20, 60), sticky="nsew")
         self.input_transferencia_datos.grid(row=2, column=1, columnspan=2, padx=(20,0), pady=(25,10), sticky="sew")
         self.input_monto.grid(row=2, column=3, padx=(5,20), pady=(25,10), sticky="sew")
         self.input_description.grid(row=3, column=1, columnspan=2, padx=(20, 0), pady=(20, 20), sticky="new")
