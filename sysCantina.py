@@ -10,8 +10,8 @@ def generate_unique_id():
     unique_id = unique_id1[:30]
     return unique_id
 
-customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
-customtkinter.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
+customtkinter.set_appearance_mode("Dark")  # Modos: "System" (standard), "Dark", "Light"
+customtkinter.set_default_color_theme("dark-blue")  # Temas: "blue" (standard), "green", "dark-blue"
 customtkinter.set_window_scaling(1.5)
 customtkinter.set_widget_scaling(1.2)
 
@@ -24,11 +24,11 @@ class App(customtkinter.CTk):
 
         self.Resultado1 = tkinter.StringVar()
 
-        # configure window
+        # Configurar ventana
         self.title("Cantina LAM")
         self.geometry(f"{1100}x{580}")
 
-        # configure grid layout (4x4)
+        # Configurar disposicion de cuadro (4x5)
         self.grid_columnconfigure((1, 2, 3,), weight=1)
         self.grid_rowconfigure((0), weight=1)
         self.grid_columnconfigure(1, weight=1)  # Columna 1 con peso 1 (expandible)
@@ -37,7 +37,7 @@ class App(customtkinter.CTk):
         self.grid_rowconfigure(1, weight=1)  # Fila 1 con peso 1 (expandible)
         self.grid_rowconfigure(2, weight=1)
 
-        # create sidebar frame with widgets
+        # Crear barra laterar y visuales
         self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, rowspan=5, sticky="nsew")
         self.sidebar_frame.grid_rowconfigure(4, weight=1)
@@ -51,7 +51,7 @@ class App(customtkinter.CTk):
         self.sidebar_firma.grid(row=7, column=0, padx=20, pady=(10, 0))
 
 
-        # create main treeview for database Ventas visualization
+        # Crear tabla para visualizar db Ventas
         self.treeview = tk.ttk.Treeview(self, columns=("Nro_Venta", "Descripcion_Producto", "Cantidad", "Precio_Total", "Transferencia_de", "Monto", "Fecha_y_hora"), show="headings", selectmode="browse")
         self.treeview.heading("Nro_Venta", text="ID de venta")
         self.treeview.heading("Descripcion_Producto", text="Descripcion de producto")
@@ -79,7 +79,7 @@ class App(customtkinter.CTk):
         self.style.configure("Treeview.Heading", background="gray", foreground="black", bordercolor="black", lightcolor="gray", darkcolor="gray")
         self.treeview.grid(row=0, rowspan=3, column=1, columnspan=3, padx=(20, 20), pady=(20, 60), sticky="nsew")
 
-        # Set the width of each column
+        # Establecer el ancho de las columnas 
         self.treeview.column("Nro_Venta", width=30)
         self.treeview.column("Descripcion_Producto", width=130)
         self.treeview.column("Cantidad", width=20)
@@ -92,25 +92,25 @@ class App(customtkinter.CTk):
             item = self.treeview.selection()[0]
             selected_id = self.treeview.item(item)["values"][0]
 
-             # Delete from the GUI (self.treeview)
+            # Borrar de la GUI(self.treeview)
             self.treeview.delete(item)
 
-            # Delete from the database (Ventas table)
+            # Borrar de la DB (Ventas table)
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
             try:
                 cursor.execute("DELETE FROM Ventas WHERE Nro_Venta=?", (selected_id,))
-                conn.commit()  # Commit the changes to the database
+                conn.commit()  # Commit cambios en DB
             finally:
                 cursor.close()
                 conn.close()
 
         self.treeview.bind("<Double-1>", on_double_click)
 
-        # populate the treeview with data from the database
+        # Recargar datos de tabla desde DB
         self.load_data_from_database1()
 
-        # Create input fields (Entry widgets) for each column in the table
+        # Crear elementos de entrada para la GUI
         self.input_transferencia_datos = customtkinter.CTkEntry(self, placeholder_text="Nombre y apellido")
         self.input_transferencia_datos.grid(row=2, column=1, columnspan=2, padx=(20,0), pady=(25,10), sticky="sew")
 
@@ -127,23 +127,23 @@ class App(customtkinter.CTk):
         self.input_quantity.bind("<KeyRelease>", lambda event: self.calculate_total_price())
 
 
-        # Create "Submit" button
+        # Crear boton de ingreso 
         self.submit_button = customtkinter.CTkButton(master=self, text="Cargar", command=self.submit_data)
         self.submit_button.grid(row=4, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="new")
 
     def load_data_from_database1(self):
-        # Connect to the database
+        # Conectar a la DB
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
 
         try:
-            # Execute a SELECT query
+            # Hacer query SELECT
             cursor.execute("SELECT Nro_Venta, Descripcion_Producto, Cantidad, Precio_Total, Transferencia_de, Monto, Fecha_y_hora FROM Ventas")
 
-            # Clear existing data in the treeview
+            # Borrar tabla de GUI
             self.treeview.delete(*self.treeview.get_children())
 
-            # Insert data from the database into the treeview
+            # Insertar datos de DB en la tabla
             for row in cursor.fetchall():
                 self.treeview.insert("", "end", values=row)
 
@@ -214,11 +214,10 @@ class App(customtkinter.CTk):
 
 
     def sidebar_Ventas_event(self):
-        # print("sidebar ventas click")
-        # Remove the new label (if it was shown)
+        # Remover la tabla "stock"(si es que fue mostrada)
         self.stock_treeview.grid_forget()
 
-        # Show the widgets in columns 1, 2, and 3 again
+        # Mostrar elementos de panel principal nuevamente
         self.treeview.grid(row=0, rowspan=3, column=1, columnspan=3, padx=(20, 20), pady=(20, 60), sticky="nsew")
         self.input_transferencia_datos.grid(row=2, column=1, columnspan=2, padx=(20,0), pady=(25,10), sticky="sew")
         self.input_monto.grid(row=2, column=3, padx=(5,20), pady=(25,10), sticky="sew")
@@ -227,7 +226,6 @@ class App(customtkinter.CTk):
         self.submit_button.grid(row=4, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="new")
 
     def sidebar_Stock_event(self):
-        # print("sidebar stock click")
         self.treeview.grid_forget()
         self.input_description.grid_forget()
         self.input_quantity.grid_forget()
@@ -241,22 +239,22 @@ class App(customtkinter.CTk):
         self.stock_treeview.heading("Precio_Unitario_Producto", text="Precio Unitario")
         self.stock_treeview.grid(row=0, rowspan=3, column=1, columnspan=3, padx=(20, 20), pady=(20, 20), sticky="nsew")
 
-        # populate the treeview with data from the database
+        # Recargar datos de la tabla desde la DB
         self.load_data_from_database2()
 
     def load_data_from_database2(self):
-        # connect to the database
+        # Conectar a la DB
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
 
         try:
-            # Execute a SELECT query
+            # Ejecutar query SELECT
             cursor.execute("SELECT ID_producto, Descripcion_Producto, Precio_Unitario_Producto FROM Stock")
 
-            # Clear existing data in the treeview
+            # Borrar datos actuales en la tabla
             self.stock_treeview.delete(*self.stock_treeview.get_children())
 
-            # Insert data from the database into the treeview
+            # Insertar datos desde la DB en la tabla 
             for row in cursor.fetchall():
                 self.stock_treeview.insert("", "end", values=row)
 
