@@ -36,20 +36,10 @@ class App(customtkinter.CTk):
         self.grid_rowconfigure(0, weight=1)  # Fila 0 con peso 1 (expandible)
         self.grid_rowconfigure(1, weight=1)  # Fila 1 con peso 1 (expandible)
         self.grid_rowconfigure(2, weight=1)
+        
 
-        # Crear barra laterar y visuales
-        self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
-        self.sidebar_frame.grid(row=0, column=0, rowspan=5, sticky="nsew")
-        self.sidebar_frame.grid_rowconfigure(4, weight=1)
-        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="Cantina LAM", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
-        self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, text="Ventas", command=self.sidebar_Ventas_event)
-        self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
-        self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, text="Productos", command=self.sidebar_Stock_event)
-        self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
-        self.sidebar_firma = customtkinter.CTkLabel(self.sidebar_frame, text="Developed by Máximo Frías | V1.0", font=customtkinter.CTkFont(size=6))
-        self.sidebar_firma.grid(row=7, column=0, padx=20, pady=(10, 0))
-
+        self.home_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.home_frame.grid_columnconfigure(0, weight=1)
 
         # Crear tabla para visualizar db Ventas
         self.treeview = tk.ttk.Treeview(self, columns=("Nro_Venta", "Descripcion_Producto", "Cantidad", "Precio_Total", "Transferencia_de", "Monto", "Fecha_y_hora"), show="headings", selectmode="browse")
@@ -130,6 +120,64 @@ class App(customtkinter.CTk):
         # Crear boton de ingreso 
         self.submit_button = customtkinter.CTkButton(master=self, text="Cargar", command=self.submit_data)
         self.submit_button.grid(row=4, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="new")
+
+        # Crear barra laterar y visuales
+        self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
+        self.sidebar_frame.grid(row=0, column=0, rowspan=5, sticky="nsew")
+        self.sidebar_frame.grid_rowconfigure(4, weight=1)
+        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="Cantina LAM", font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
+        self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, corner_radius=0, height=40, border_spacing=10, text="Ventas",
+                                                   fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30")
+                                                   , anchor="w", command=self.home_button_event)
+        self.sidebar_button_1.grid(row=1, column=0, sticky="ew")
+
+        self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, corner_radius=0, height=40, border_spacing=10, text="Stock",
+                                                   fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
+                                                   anchor="w", command=self.frame_2_button_event)
+        self.sidebar_button_2.grid(row=2, column=0, sticky="ew")
+
+        
+        self.sidebar_firma = customtkinter.CTkLabel(self.sidebar_frame, text="Developed by Máximo Frías | V1.0", font=customtkinter.CTkFont(size=6))
+        self.sidebar_firma.grid(row=7, column=0, padx=20, pady=(10, 0))
+
+        #crear segundo frame
+        self.second_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.stock_treeview = tk.ttk.Treeview(self.second_frame, columns=("ID_producto", "Descripcion_Producto", "Precio_Unitario_Producto"), show="headings", selectmode="browse")
+        self.stock_treeview.heading("ID_producto", text="ID de Producto")
+        self.stock_treeview.heading("Descripcion_Producto", text="Descripcion de producto")
+        self.stock_treeview.heading("Precio_Unitario_Producto", text="Precio Unitario")
+        self.stock_treeview.grid(row=0, rowspan=3, column=1, columnspan=3, padx=(20, 20), pady=(20, 60), sticky="nsew")
+
+
+        #Recargar datos de la tabla desde la DB
+        self.load_data_from_database2()
+
+        # select default frame
+        self.select_frame_by_name("Ventas")
+
+    def select_frame_by_name(self, name):
+        # set button color for selected button
+        self.sidebar_button_1.configure(fg_color=("gray75", "gray25") if name == "Ventas" else "transparent")
+        self.sidebar_button_2.configure(fg_color=("gray75", "gray25") if name == "Stock" else "transparent")
+
+        # show selected frame
+        if name == "Ventas":
+            self.home_frame.grid(row=0, column=1, sticky="nsew")
+        else:
+            self.home_frame.grid_forget()
+        if name == "Stock":
+            self.second_frame.grid(row=0, column=1, sticky="nsew")
+        else:
+            self.second_frame.grid_forget()
+
+
+    def home_button_event(self):
+        self.select_frame_by_name("Ventas")
+
+    def frame_2_button_event(self):
+        self.select_frame_by_name("Stock")
+
 
     def load_data_from_database1(self):
         # Conectar a la DB
@@ -213,34 +261,6 @@ class App(customtkinter.CTk):
 
 
 
-    def sidebar_Ventas_event(self):
-        # Remover la tabla "stock"(si es que fue mostrada)
-        self.stock_treeview.grid_forget()
-
-        # Mostrar elementos de panel principal nuevamente
-        self.treeview.grid(row=0, rowspan=3, column=1, columnspan=3, padx=(20, 20), pady=(20, 60), sticky="nsew")
-        self.input_transferencia_datos.grid(row=2, column=1, columnspan=2, padx=(20,0), pady=(25,10), sticky="sew")
-        self.input_monto.grid(row=2, column=3, padx=(5,20), pady=(25,10), sticky="sew")
-        self.input_description.grid(row=3, column=1, columnspan=2, padx=(20, 0), pady=(20, 20), sticky="new")
-        self.input_quantity.grid(row=3, column=3, padx=(5, 20), pady=(20, 20), sticky="new")
-        self.submit_button.grid(row=4, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="new")
-
-    def sidebar_Stock_event(self):
-        self.treeview.grid_forget()
-        self.input_description.grid_forget()
-        self.input_quantity.grid_forget()
-        self.submit_button.grid_forget()
-        self.input_transferencia_datos.grid_forget()
-        self.input_monto.grid_forget()
-
-        self.stock_treeview = tk.ttk.Treeview(self, columns=("ID_producto", "Descripcion_Producto", "Precio_Unitario_Producto"), show="headings", selectmode="browse")
-        self.stock_treeview.heading("ID_producto", text="ID de Producto")
-        self.stock_treeview.heading("Descripcion_Producto", text="Descripcion de producto")
-        self.stock_treeview.heading("Precio_Unitario_Producto", text="Precio Unitario")
-        self.stock_treeview.grid(row=0, rowspan=3, column=1, columnspan=3, padx=(20, 20), pady=(20, 20), sticky="nsew")
-
-        # Recargar datos de la tabla desde la DB
-        self.load_data_from_database2()
 
     def load_data_from_database2(self):
         # Conectar a la DB
