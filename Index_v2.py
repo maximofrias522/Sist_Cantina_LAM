@@ -82,7 +82,7 @@ class App(customtkinter.CTk):
         self.treeview.heading("Transferencia_de", text="Transferencia")
         self.treeview.heading("Monto", text="Monto")
         self.treeview.heading("Fecha_y_hora", text="Fecha y hora")
-        self.treeview.grid(row=0, column=1, columnspan=5, padx=(20, 20), pady=(20, 400), sticky="n")
+        self.treeview.grid(row=0, column=1, columnspan=5, padx=(20, 20), pady=(20, 0), sticky="n")
 
         self.style = tk.ttk.Style()
         self.style.configure("Treeview",
